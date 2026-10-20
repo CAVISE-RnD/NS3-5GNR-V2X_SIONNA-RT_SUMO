@@ -7,7 +7,7 @@ This package reproduces the manuscript analyses of 140 emergency-vehicle alert (
 Requirements: Python 3.11 or later and NumPy 2.3.5. From this directory, run:
 
 ```bash
-python -m pip install numpy==2.3.5
+python -m pip install -r requirements.txt
 python analyze.py --output results.json
 ```
 
@@ -16,6 +16,7 @@ Run Python without `-O`, because the validation assertions must remain enabled. 
 ## Package contents
 
 - `analyze.py`: analysis and validation script.
+- `requirements.txt`: the pinned NumPy dependency for the analysis.
 - `data.json.gz`: EVA run and receiver tables, intersection counts and metadata, the selection ledger, and the included intersection MSG, CTRL, and collision XML records.
 - `eva_logs.zip`: 81 complete EVA MSG sets for independent checks against the retained run table.
 - `launch_configurations.zip`: recorded launches, selected profile and simulator logs, and source snapshots with revision metadata.

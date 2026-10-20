@@ -1,38 +1,11 @@
-# runs/
+# Retained run records
 
-Централизованное хранилище evidence-прогонов сценариев. Каждая дата — отдельная папка `<YYYY-MM-DD>/`, внутри — конкретные run-директории с `*.log`, `artifacts/`, `figures/`, `run_summary.csv`, `REPORT.md`.
+This directory preserves records from development and experiment runs, usually organized by date and scenario. Contents may include logs, CSV tables, figures, configuration records, and run reports. Availability and schemas vary across campaigns.
 
-## Структура
+For the exact retained sample used in the manuscript analysis, use [`reproducibility_package/`](../reproducibility_package/README.md). It defines the 140 EVA runs and 27 complete-case intersection runs, validates the packaged input checksums, and documents missing records and selection criteria. Do not infer that every run in this directory belongs to that sample.
 
-- `runs/<YYYY-MM-DD>/<run_dir>/` — данные одного прогона
-- `runs/chatgpt_exports/` — компактные export-бандлы (опциональны, формируются `EXPORT_RESULTS=1` в run.sh сценариев)
+## Working with records
 
-## Постобработка
+Read each run's configuration and report before comparing results. Keep the original records unchanged, place derived outputs in a separate directory, and retain the source commit, commands, seeds, and environment information for any new campaign.
 
-Скрипты лежат в `tools/`:
-
-```bash
-# Дипломные story-графики по lane-change кейсу
-./.venv/bin/python tools/plots/build_valid_scenario_story_plots.py \
-  --run-dir runs/<YYYY-MM-DD>/<run_dir>
-
-# Интуитивные CSV-only графики
-./.venv/bin/python tools/plots/build_valid_scenario_intuitive_plots.py \
-  --run-dir runs/<YYYY-MM-DD>/<run_dir>
-
-# Drop → decision timeline
-./.venv/bin/python tools/plots/build_drop_decision_timeline.py \
-  --run-dir runs/<YYYY-MM-DD>/<run_dir>
-
-# Полный аудит логов по всем прогонам
-./.venv/bin/python tools/analysis/analyze_all_logs.py \
-  --root runs --out-dir runs --tag <YYYY-MM-DD>
-```
-
-## Управление объёмом
-
-`runs/` может разрастаться. Правила:
-
-1. Сохраняем только прогоны, которые упомянуты в защитных артефактах (тексты ВКР, статьи, отчёты).
-2. Лишние черновые прогоны — переносим в `archive/<date>/runs/` (не удаляем).
-3. Никогда не лезем руками в чужие даты — только добавляем новые.
+General analysis and plotting utilities are under [`tools/`](../tools/README.md); scenario-specific processing may also be provided under `experiments/<name>/tools/`. Historical directory names are preserved so that existing scripts and provenance references continue to resolve.

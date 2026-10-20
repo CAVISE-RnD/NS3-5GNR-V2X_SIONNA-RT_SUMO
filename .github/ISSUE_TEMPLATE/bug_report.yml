@@ -1,0 +1,36 @@
+name: Bug or reproducibility issue
+description: Report a problem with the simulator, analysis, or documentation.
+body:
+  - type: input
+    id: revision
+    attributes:
+      label: Repository commit
+      description: Paste the full output of git rev-parse HEAD.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include the operating system and relevant Python, NumPy, SUMO, ns-3, Sionna, or GPU versions.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Provide exact commands, inputs, and scenario or seed identifiers when applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and observed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      description: Include a small relevant log excerpt or failing assertion. Remove credentials and private information.
+      render: text

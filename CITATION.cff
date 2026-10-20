@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: >-
+  If you use this research overlay or its manuscript reproducibility package,
+  please cite this software and the full Git commit SHA used in your analysis.
+  Please also cite the underlying frameworks listed in the README.
+type: software
+title: Integrated 5G NR-V2X and Sionna RT Co-Simulation with ns-3 and SUMO
+authors:
+  - family-names: Fizulin
+    given-names: Andrey
+repository-code: https://github.com/CAVISE-RnD/Sionna_SUMO_simu
+url: https://github.com/CAVISE-RnD/Sionna_SUMO_simu
+abstract: >-
+  Research overlay integrating ns-3, 5G NR-V2X, Sionna RT, and SUMO for
+  connected vehicle communication and behavior analysis. Includes simulator
+  sources, experiment configurations, and a package for reanalyzing the
+  retained emergency-vehicle alert and intersection manuscript data.
+keywords:
+  - ns-3
+  - 5G NR-V2X
+  - Sionna RT
+  - SUMO
+  - co-simulation
+  - connected vehicles
+  - reproducibility

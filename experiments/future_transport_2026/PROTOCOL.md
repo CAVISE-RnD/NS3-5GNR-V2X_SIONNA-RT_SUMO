@@ -1,5 +1,7 @@
 # Prospective Future Transportation experiment protocol
 
+**Repository note (21 October 2026):** This protocol records the design of a separate prospective cohort. The retained historical manuscript sample is now available in the [reproducibility package](../../reproducibility_package/README.md). Data-availability statements in the original protocol below describe its drafting context; its experiment definitions are preserved.
+
 Status: **prospective design locked before production; zero qualifying runs have been accepted**. This file records the analysis decisions before any new production outcome is inspected. Technical pilot outcomes were inspected to verify implementation and motivated the disclosed radio-calibration cohort below; every pilot is excluded from estimation. The historical 140-run and 90-run data underlying the manuscript are absent from the public checkout. New experiments are a separate cohort, and all old result tables and figures must be replaced after execution.
 
 ## Research question and scope

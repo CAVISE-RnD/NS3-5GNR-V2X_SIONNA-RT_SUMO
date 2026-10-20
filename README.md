@@ -1,345 +1,155 @@
-# Sionna_SUMO_simu
+# Integrated 5G NR-V2X and Sionna RT Co-Simulation with ns-3 and SUMO
 
-![Portfolio](https://img.shields.io/badge/portfolio-thesis_research-2f6f6d?style=flat-square)
-![ns-3](https://img.shields.io/badge/simulator-ns--3-44546a?style=flat-square)
-![5G NR-V2X](https://img.shields.io/badge/network-5G_NR--V2X-3b6ea8?style=flat-square)
-![SUMO](https://img.shields.io/badge/mobility-SUMO-7a5c2e?style=flat-square)
-![Sionna](https://img.shields.io/badge/ray_tracing-Sionna_RT-2f6f6d?style=flat-square)
+[![Manuscript analysis](https://github.com/CAVISE-RnD/Sionna_SUMO_simu/actions/workflows/reproducibility.yml/badge.svg)](https://github.com/CAVISE-RnD/Sionna_SUMO_simu/actions/workflows/reproducibility.yml)
+[![License: GPL v2](https://img.shields.io/badge/License-GPL_v2-blue.svg)](LICENSE)
 
-## Manuscript reproducibility
+An integrated research framework for connected vehicle communications and behavior analysis. The framework couples **ns-3 and 5G NR-V2X**, **Sionna RT**, and **SUMO** to study how communication conditions affect information availability, application decisions, and simulated traffic outcomes.
 
-The [manuscript reproducibility package](reproducibility_package/README.md) contains the retained data, historical source snapshots, and analysis script for 140 emergency-vehicle alert runs and 27 complete-case intersection runs.
+Built on [ms-van3t](https://github.com/ms-van3t-devs/ms-van3t) and [VaN3Twin](https://github.com/DriveX-devs/NEWWAY), this repository contains the simulator overlay, experiment configurations, analysis tools, and a self-contained package for reanalyzing the retained manuscript data.
 
-To reproduce the analysis with Python 3.11 or later:
+**Start here:** [Manuscript analysis](#reproduce-the-manuscript-analysis) · [Architecture](#system-architecture) · [Simulation setup](#simulation-setup) · [Citation](#citation)
+
+## Research scope
+
+The framework supports studies of:
+
+- NR-V2X sidelink communication and application-level message reception.
+- Site-specific radio propagation through an external Sionna RT service where enabled.
+- Bidirectional coupling between vehicle mobility and communication applications.
+- Emergency-vehicle warning, intersection conflicts, and communication-assisted vehicle behavior.
+- Run-level analysis of packet reception, information timing, controller events, and recorded collisions.
+
+Protocol and channel settings are specific to each experiment. Support for a feature in the framework does not imply that it was enabled in the manuscript campaigns.
+
+## System architecture
+
+```mermaid
+flowchart LR
+    SUMO["SUMO<br/>Mobility and traffic state"]
+    TRACI["TraCI<br/>State and control exchange"]
+    NS3["ns-3 / ms-van3t<br/>5G-LENA NR-V2X and applications"]
+    RT["Sionna RT<br/>Scene-dependent channel service"]
+    DATA["Run records<br/>Messages, control events, collisions"]
+    ANALYSIS["Analysis<br/>Reception, timing, traffic outcomes"]
+    SUMO -->|Vehicle state| TRACI
+    TRACI -->|Mobility updates| NS3
+    NS3 -->|Application commands| TRACI
+    TRACI -->|Traffic control| SUMO
+    NS3 -->|Geometry and channel queries| RT
+    RT -->|Channel information| NS3
+    SUMO --> DATA
+    NS3 --> DATA
+    DATA --> ANALYSIS
+```
+
+SUMO advances the traffic simulation. TraCI exchanges vehicle state and application control commands with ns-3. The network stack models radio access, resource allocation, and packet delivery. When enabled, Sionna RT supplies scene-dependent channel information; the inspected manuscript interface exchanges scalar path loss and exposes delay and line-of-sight queries rather than supplying a full channel impulse response to the NR decoder.
+
+## Reproduce the manuscript analysis
+
+The [reproducibility package](reproducibility_package/README.md) runs independently of the simulator. It requires **Python 3.11 or later** and **NumPy 2.3.5**. No GPU, SUMO installation, or Sionna service is required for this analysis.
 
 ```bash
 git clone https://github.com/CAVISE-RnD/Sionna_SUMO_simu.git
-cd Sionna_SUMO_simu/reproducibility_package
-python -m pip install numpy==2.3.5
-python analyze.py --output results.json
+cd Sionna_SUMO_simu
+python -m venv .venv-analysis
 ```
 
-The analysis requires no simulator or GPU. See the package README for the English incomplete-run table, validation checks, and historical source limitations. For the article, cite a full commit SHA using `https://github.com/CAVISE-RnD/Sionna_SUMO_simu/tree/<commit-sha>`; the corresponding package is under `reproducibility_package/`.
-
-## Research project background
-
-> **«Влияние потерь сообщений 5G NR-V2X Mode 2 на безопасность подключённых автономных транспортных средств»**
->
-> Исследовательский overlay поверх [ms-van3t](https://github.com/ms-van3t-devs/ms-van3t) / [VaN3Twin](https://github.com/DriveX-devs/NEWWAY): co-simulation ns-3 + SUMO + NVIDIA Sionna для изучения причинно-следственной цепочки потеря CAM → деградация решений → дорожный инцидент.
->
-> **Автор:** Физулин Андрей Владимирович · HSE, JSC AVTOVAZ
-> **Лицензия:** GPL-2.0 (наследует от ms-van3t)
-
-<p align="center">
-  <img src="img/VaN3Twin_logo_v5_blk.png" height="36" alt="VaN3Twin"/>
-  &nbsp;&nbsp;+&nbsp;&nbsp;
-  <img src="img/MS-VAN3T_logo-V2_small.png" height="36" alt="ms-van3t"/>
-</p>
-
----
-
-## Результаты
-
-### Причинно-следственная цепочка: потеря CAM → авария
-
-![Causal chain](img/results/cross_layer_causal_chain.png)
-
-*Кросс-слоевая цепочка: деградация физического канала (SNR ↓) → рост потерь CAM (PRR ↓) → запоздалое обнаружение застрявшего лидера → столкновение. Прогон `truck_lane_change`, 2026-03-20.*
-
-### Поведение транспортных средств при разных PRR
-
-![Behavioral dashboard](img/results/behavioral_dashboard.png)
-
-*Скорости и манёвры veh3–veh5 при высоком (safe) и низком (crash) PRR. При PRR < 40% veh4 не успевает перестроиться.*
-
-### PRR: кумулятивное распределение
-
-![PRR cumulative](img/results/intuitive_prr_cumulative.png)
-
-*CDF пакетного приёма по прогонам: разрыв между safe (синий) и crash (красный) сценарием — ключевое evidence ВКР.*
-
-### Drop CAM → решение водителя
-
-![Drop vs control](img/results/emergency_drop_vs_control_actions.png)
-
-*Корреляция между потерянными пакетами и управляющими действиями: каждый drop в критическом окне увеличивает риск инцидента.*
-
----
-
-## Что это такое
-
-1548-CAVISE2026_5GNR — это **надстройка** над фреймворком ms-van3t/VaN3Twin, которая:
-
-- добавляет **оригинальные сценарии** для исследования причинно-следственной цепочки: потеря CAM → ухудшение принятия решений → дорожный инцидент;
-- интегрирует **NVIDIA Sionna** (ray-tracing канал) в петлю обратной связи ns-3 ↔ SUMO;
-- предоставляет **инструменты постобработки** (графики PRR, временны́е шкалы drop → decision, аудит логов);
-- хранит **воспроизводимые evidence-прогоны** для защиты ВКР.
-
-Базовый фреймворк (ns-3, TraCI-SUMO, ETSI ITS-G5/NR-V2X стек, CARLA-расширение, DCC) полностью наследуется от ms-van3t/VaN3Twin — мы не переписываем то, что уже работает.
-
----
-
-## Структура репозитория
-
-```
-NEWWAY/
-├── reproducibility_package/ # Manuscript data, analysis, and source snapshots
-├── experiments/          # Все сценарии и эксперименты
-│   ├── truck_lane_change/        # ВКР: смена полосы — PRR → манёвр
-│   ├── intersection_crash/       # ВКР: конфликт на перекрёстке
-│   ├── intersection_radar_comm/  # Радар + V2X comm, sweep по мощности
-│   ├── cpm_perception/           # CPM / коллективное восприятие
-│   ├── compare_tech/             # Сравнение NR-V2X vs 802.11p
-│   ├── intersection_v2x_awareness/ # Переработанный intersection (apr 2026)
-│   ├── operational/              # Стандартные примеры ms-van3t
-│   ├── strict_sionna_vkr/        # Строгий Sionna-пакет с manifests
-│   └── raw/                      # Сырые прогоны для воспроизводимости
-│
-├── runs/                 # Evidence-прогоны по датам (YYYY-MM-DD)
-├── tools/                # Аналитические скрипты и генераторы
-│   ├── plots/            # Графики (PRR, drop timeline, story plots)
-│   ├── analysis/         # Аудит логов, агрегация результатов
-│   ├── vkr/              # Генераторы фигур и сборка docx/pdf ВКР
-│   └── scenario_manager/ # Централизованный запуск / sweep
-│
-├── reports/              # Отчёты по циклам практики
-├── conference/           # Финальные версии статей (docx)
-├── src/                  # Overlay C++ модулей ns-3 (от ms-van3t + доработки)
-├── scripts/              # Operational helpers (sync, docker)
-├── archive/              # Замороженные тексты ВКР, дубликаты — НЕ для ИИ
-│
-├── AGENTS.md             # Инструкции для ИИ-агентов
-├── REPO_LAYOUT.md        # Полная карта репозитория
-└── DEVELOPMENT.md        # Checklist setup/configure/build/test
-```
-
-Подробная карта — в [`REPO_LAYOUT.md`](REPO_LAYOUT.md).
-
----
-
-## Быстрый старт
-
-### 1. Установка зависимостей и сборка
+Activate the environment on Linux or macOS:
 
 ```bash
-# SUMO
-sudo add-apt-repository ppa:sumo/stable
-sudo apt update && sudo apt install sumo sumo-tools sumo-doc
-
-# Клонировать и собрать ns-3-dev с overlay
-git clone https://github.com/CAVISE-RnD/Sionna_SUMO_simu.git NEWWAY
-cd NEWWAY
-./sandbox_builder.sh install-dependencies   # первый раз
-# или ./sandbox_builder.sh                  # если ns-3 уже установлен
-
-# Перейти в ns-3-dev и собрать
-cd .bootstrap-ns3/ns-3-dev   # или куда sandbox поместил ns-3
-./ns3 configure --build-profile=optimized --enable-examples --enable-tests --disable-python --disable-werror
-./ns3 build
+source .venv-analysis/bin/activate
 ```
 
-Подробный checklist с типичными ошибками — в [`DEVELOPMENT.md`](DEVELOPMENT.md).
+On Windows PowerShell:
 
-### 2. Запустить ВКР-сценарий (lane change)
+```powershell
+.\.venv-analysis\Scripts\Activate.ps1
+```
+
+Then install the pinned dependency and run the analysis from the repository root:
 
 ```bash
-# Из корня репозитория
-experiments/truck_lane_change/scripts/run.sh
+python -m pip install -r reproducibility_package/requirements.txt
+python reproducibility_package/analyze.py --output results.json
 ```
 
-Сценарий автоматически:
-- запустит SUMO + ns-3 симуляцию;
-- (опционально) поднимет локальный Sionna-сервер;
-- сохранит результаты в `~/NEWWAY_runs/<дата>/truck_lane_change/`;
-- построит графики PRR → манёвр.
+The script verifies the SHA-256 checksums of all four input archives before analysis. Run Python without `-O`, because validation assertions must remain enabled. After the repository and dependency have been downloaded, the analysis runs without network access.
 
-### 3. Запустить intersection-сценарий
+Successful execution reports:
 
-```bash
-experiments/intersection_crash/scripts/run.sh
+```text
+PASS: 140 EVA runs; 27 intersection runs; 281 CAM-control links.
+Collision counts: [9, 9, 0] (9 runs per mode).
+Results: results.json
+EVA raw-log checks: 81/81 passed.
 ```
 
-### 4. Постобработка прогона
+The collision counts follow the order **radar + degraded V2X**, **radar only**, and **radar + high-quality V2X**. They describe the retained scenario-specific sample.
 
-```bash
-# Story-графики (дипломный стиль)
-./.venv/bin/python tools/plots/build_valid_scenario_story_plots.py \
-  --run-dir runs/2026-03-04/<run_dir>
+### Packaged evidence
 
-# Временна́я шкала drop → decision
-./.venv/bin/python tools/plots/build_drop_decision_timeline.py \
-  --run-dir runs/2026-03-04/<run_dir>
+| Campaign | Analysis sample | Retained evidence |
+|---|---|---|
+| Emergency-vehicle alert (EVA) | 140 runs: 14 transmit-power levels and 10 `RngRun` values per level | Run tables, 2,660 receiver histories, and 81 complete raw MSG sets |
+| Priority intersection | 27 runs: three information modes and nine common `RngRun` values | Receiver MSG, controller CTRL, collision XML, transmission counts, and selection records |
 
-# Полный аудит логов
-./.venv/bin/python tools/analysis/analyze_all_logs.py \
-  --root runs --out-dir runs --tag 2026-03-04
-```
+See the [package README](reproducibility_package/README.md) for archive contents, the incomplete-run table, selection criteria, and historical source provenance. The generated `results.json` includes aggregate summaries, per-run intersection metrics, raw-log cross-checks, and matched CAM-control events.
 
----
+### Interpretation and reproducibility limits
 
-## Основные сценарии ВКР
+The package supports reanalysis of the retained evidence. It does not establish exact rerun reproducibility of the historical simulations: some executed local intersection launcher, controller, and configuration changes were not captured in the recorded base revision. Raw EVA checks cover 81 of the 140 runs; excluded raw intersection records are not supplied.
 
-### `truck_lane_change` — смена полосы при потере CAM
+The manuscript EVA campaign used the native NR sidelink channel with Sionna disabled. The intersection campaign used Sionna RT with a controlled receiver impairment profile. The nine common intersection `RngRun` values are 1–8 and 11; complete-case selection conditions the analysis on retained records and accepted controller events. These simulated outcomes do not establish calibrated real-world safety performance or packet-level causality.
 
-Демонстрирует причинно-следственную цепочку:
-**потеря CAM** (низкое SNR / перегрузка канала) → **запоздалое обнаружение застрявшего лидера** → **либо успешный объезд (high PRR), либо столкновение (low PRR)**.
+The prospective protocols under [`experiments/future_transport_2026/`](experiments/future_transport_2026/) describe separate experiments. Their cohorts, endpoint definitions, and environment records must be kept distinct from the retained manuscript sample.
 
-```bash
-experiments/truck_lane_change/scripts/run.sh
+## Simulation setup
 
-# Варианты:
-USE_SIONNA=0 experiments/truck_lane_change/scripts/run.sh   # без ray-tracing
-USE_SIONNA=1 experiments/truck_lane_change/scripts/run.sh   # с Sionna (нужен сервер)
-```
+New simulations require a Linux build environment, SUMO, and the ns-3/5G-LENA dependencies. Sionna-enabled experiments additionally require a compatible ray-tracing environment. The repository is an **overlay**, not a standalone ns-3 installation.
 
-Результаты: `~/NEWWAY_runs/<дата>/truck_lane_change/`  
-Артефакты ВКР: `runs/2026-03-*/`
+Use the [development guide](DEVELOPMENT.md) for the disposable bootstrap workflow, build commands, and the pinned research-container route. Some upstream source filenames differ only by case, so simulator builds need a case-sensitive filesystem; use a Linux filesystem or Docker volume when working from Windows.
 
-### `intersection_crash` — конфликт на перекрёстке
-
-Третий автомобиль нарушает приоритет при деградации V2X-канала.
-
-```bash
-experiments/intersection_crash/scripts/run.sh
-```
-
-### `intersection_radar_comm` — радар + V2X comm
-
-Три режима: только радар / только V2X comm / комбинированный. Sweep по `equiv_tx_power`.
-
-```bash
-experiments/intersection_radar_comm/scripts/run.sh
-experiments/intersection_radar_comm/scripts/run_radar_bad_link.sh
-experiments/intersection_radar_comm/scripts/run_radar_good_link.sh
-```
-
-### `strict_sionna_vkr` — строгий Sionna-прогон
-
-Полный набор manifests, сцен и скриптов для воспроизводимых Sionna-прогонов.
-
-```bash
-experiments/strict_sionna_vkr/scripts/start_sionna_server.sh  # на GPU-машине
-experiments/strict_sionna_vkr/scripts/run_native_metrics.sh   # основной прогон
-```
-
----
-
-## Sionna ray-tracing
-
-[NVIDIA Sionna](https://nvlabs.github.io/sionna/) используется как физический канальный движок вместо стандартной log-distance модели.
-
-```bash
-# Установка
-pip install sionna   # v0.19.0 или v1.0
-
-# Запуск сервера (отдельный терминал / GPU-машина)
-./.venv_sionna/bin/python sionna_v1_server_script.py \
-  --file_name src/sionna/scenarios/SionnaCircleScenario/scene.xml \
-  --local-machine --verbose
-
-# Затем запуск сценария с Sionna
-USE_SIONNA=1 SIONNA_SERVER_IP=127.0.0.1 \
-  experiments/truck_lane_change/scripts/run.sh
-```
-
-Сцены в формате Mitsuba XML создаются в Blender 3.6.22 с аддоном [mitsuba-blender](https://github.com/mitsuba-renderer/mitsuba-blender).
-
----
-
-## Операционные примеры (от ms-van3t)
-
-В `experiments/operational/` лежат стандартные примеры ms-van3t без модификаций:
-
-| Пример | Команда ns-3 |
+| Component | Location |
 |---|---|
-| NR-V2X emergency vehicle alert | `./ns3 run "v2v-emergencyVehicleAlert-nrv2x"` |
-| V2V CAM exchange + Sionna | `./ns3 run "v2v-cam-exchange-sionna-nrv2x"` |
-| 802.11p + NR-V2X coexistence | `./ns3 run "v2v-coexistence-80211p-nrv2x"` |
-| CTTC NR-V2X demo | `./ns3 run "cttc-nr-v2x-demo-simple"` |
-| West-to-east highway | `./ns3 run "nr-v2x-west-to-east-highway"` |
-| 5G PHY metrics | `./ns3 run "5g-phy-metrics"` |
+| Simulator overlay and communication applications | [`src/`](src/) |
+| NR sidelink support | [`src/nr/`](src/nr/) |
+| SUMO/TraCI integration | [`src/traci/`](src/traci/) |
+| Sionna integration and channel service | [`src/sionna/`](src/sionna/) |
+| Scenario launchers and configurations | [`experiments/`](experiments/README.md) |
+| Research container and pinned source assembly | [`docker/Dockerfile.research`](docker/Dockerfile.research), [`scripts/research/bootstrap.py`](scripts/research/bootstrap.py) |
 
-Запускать из директории ns-3-dev (`.bootstrap-ns3/ns-3-dev`).  
-Документация ms-van3t: [ms-van3ts-documentation.readthedocs.io](https://ms-van3ts-documentation.readthedocs.io/en/master/)
+## Repository guide
 
----
-
-## Отношение к ms-van3t и VaN3Twin
-
-```
-ms-van3t (Politecnico di Torino / Milano)
-    └── VaN3Twin (+ NVIDIA Sionna ray-tracing)
-            └── NEWWAY overlay (Физулин А.В., ВКР 2026)
-                    ├── src/automotive/  — доработки EVA, emergencyVehicleAlert
-                    ├── src/sionna/      — расширение Sionna connection handler
-                    └── experiments/     — оригинальные ВКР-сценарии
-```
-
-Весь код в `src/` является форком/overlay от upstream ms-van3t/VaN3Twin.  
-Оригинальная работа сосредоточена в `experiments/`, `tools/`, и точечных изменениях в `src/automotive/examples/` и `src/sionna/model/`.
-
-**Upstream репозитории:**
-- ms-van3t: https://github.com/ms-van3t-devs/ms-van3t
-- VaN3Twin / NEWWAY: https://github.com/DriveX-devs/NEWWAY
-
----
-
-## Воспроизводимость
-
-Все evidence-прогоны для ВКР хранятся в `runs/` с разбивкой по датам:
-
-```
-runs/
-├── 2026-03-04/   # Ключевые прогоны truck_lane_change
-├── 2026-03-20/   # Intersection crash прогоны
-├── 2026-02-*/    # Ранние sweep-прогоны
-└── chatgpt_exports/  # Компактные бандлы для анализа
-```
-
-Для воспроизведения конкретного прогона см. `REPORT.md` в директории прогона.
-
----
-
-## Python-окружения
-
-| Окружение | Назначение |
+| Directory | Purpose |
 |---|---|
-| `.venv/` | Основные скрипты (`tools/`, `experiments/*/tools/`) |
-| `.venv_sionna/` | Sionna-зависимые скрипты |
-| `.venv_docs/` | Генерация документации |
+| [`reproducibility_package/`](reproducibility_package/README.md) | Manuscript data, historical source snapshots, and analysis |
+| [`experiments/`](experiments/README.md) | Scenario configurations, launchers, and experiment protocols |
+| [`tools/`](tools/README.md) | Analysis, plotting, aggregation, and scenario tools |
+| [`runs/`](runs/README.md) | Retained records from additional development and experiment runs |
+| [`tests/`](tests/) | Research-analysis checks and simulator tests |
+| [`scripts/`](scripts/) | Build, environment, and publication-packaging utilities |
+| [`docs/`](docs/) | Inherited framework documentation and supplementary technical notes |
 
-Создание:
-```bash
-python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
+A complete navigation guide is available in [REPO_LAYOUT.md](REPO_LAYOUT.md). The [contribution guide](CONTRIBUTING.md) explains how to report issues, preserve experimental evidence, and validate changes. The manuscript analysis is also checked by [GitHub Actions](https://github.com/CAVISE-RnD/Sionna_SUMO_simu/actions/workflows/reproducibility.yml).
+
+## Citation
+
+For a paper, cite the **full commit SHA** of the version used and record the access date. A branch such as `main` can change after submission. Citation metadata for this research overlay is provided in [CITATION.cff](CITATION.cff).
+
+```text
+Fizulin, A. Integrated 5G NR-V2X and Sionna RT Co-Simulation with ns-3 and SUMO.
+Source code and reproducibility package. CAVISE-RnD.
+https://github.com/CAVISE-RnD/Sionna_SUMO_simu/tree/<full-commit-sha>
+(accessed on <day month year>).
 ```
 
----
+The corresponding manuscript package is located at `reproducibility_package/` within that commit. Its source archives retain their own historical revision metadata; the package commit and the recorded simulation source revision serve different purposes.
 
-## Цитирование
+Please also acknowledge the underlying frameworks when using them:
 
-Если вы используете этот репозиторий в своей работе, пожалуйста, процитируйте базовый фреймворк ms-van3t:
+- Raviglione, F.; Risma Carletti, C.M.; Malinverno, M.; Casetti, C.; Chiasserini, C.F. *ms-van3t: An integrated multi-stack framework for virtual validation of V2X communication and services.* Computer Communications 217 (2024), 70–86. [doi:10.1016/j.comcom.2024.01.022](https://doi.org/10.1016/j.comcom.2024.01.022).
+- Pegurri, R.; Gasco, D.; Linsalata, F.; Rapelli, M.; Moro, E.; Raviglione, F.; Casetti, C. *VaN3Twin: the Multi-Technology V2X Digital Twin with Ray-Tracing in the Loop.* IEEE Transactions on Wireless Communications (2026). [doi:10.1109/TWC.2026.3685710](https://doi.org/10.1109/TWC.2026.3685710); [open manuscript](https://arxiv.org/abs/2505.14184).
 
-```bibtex
-@article{ms-van3t-journal-2024,
-    title   = {ms-van3t: An integrated multi-stack framework for virtual validation of V2X communication and services},
-    journal = {Computer Communications},
-    volume  = {217},
-    pages   = {70-86},
-    year    = {2024},
-    doi     = {https://doi.org/10.1016/j.comcom.2024.01.022},
-    author  = {F. Raviglione and C.M. Risma Carletti and M. Malinverno and C. Casetti and C.F. Chiasserini},
-}
-```
+## License and attribution
 
-Основная публикация NEWWAY/VaN3Twin (pre-print, 2025):
-
-```bibtex
-@misc{pegurri2025newway,
-    title         = {Van3tTwin the Multi-Technology V2X Digital Twin with Ray-Tracing in the Loop},
-    author        = {Roberto Pegurri and Diego Gasco and Francesco Linsalata and Marco Rapelli and Eugenio Moro and Francesco Raviglione and Claudio Casetti},
-    year          = {2025},
-    eprint        = {2505.14184},
-    archivePrefix = {arXiv},
-    url           = {https://arxiv.org/abs/2505.14184},
-}
-```
+The repository retains the GNU General Public License v2 text in [LICENSE](LICENSE) and the upstream author acknowledgements in [AUTHORS](AUTHORS). Existing source-file copyright notices and third-party license terms remain applicable. This research overlay builds on ms-van3t, VaN3Twin, 5G-LENA, SUMO, and Sionna; those projects retain their respective authorship and licensing.

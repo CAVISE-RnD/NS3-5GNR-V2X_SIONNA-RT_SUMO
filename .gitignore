@@ -18,9 +18,7 @@
 /ms-van3t.cflags
 /ms-van3t.cxxflags
 
-/.editorconfig
 /.mailmap
-/CONTRIBUTING.md
 /ms-van3t-3.33.cflags
 /ms-van3t-3.33.cxxflags
 /VERSION
@@ -202,7 +200,6 @@ OpenCDA/
 # Additional build files
 .clang-tidy
 .codespellrc
-.github/
 # build-support/.ns3rc-template
 # build-support/3rd-party/FindEigen3.cmake
 # build-support/3rd-party/find-program-hints.cmake
@@ -1860,3 +1857,18 @@ analysis/mode2_loss/data/
 analysis/mode2_loss/figures/
 analysis/mode2_loss/logs/
 analysis/mode2_loss/results/
+
+# Local tooling and generated output
+/AGENTS.md
+/CLAUDE.md
+/GEMINI.md
+/docs/superpowers/
+/.venv*/
+/.env
+/.env.*
+!/.env.example
+node_modules/
+.DS_Store
+Thumbs.db
+/results.json
+/reproducibility_package/results.json

@@ -1,49 +1,37 @@
-# REPO_LAYOUT.md — карта репозитория NEWWAY
+# Repository guide
 
-Последняя реорганизация: 2026-05-03 (см. `docs/superpowers/specs/2026-05-03-repo-cleanup-design.md`).
+## Manuscript entry points
 
-## Корневые директории
-
-| Путь | Назначение |
+| Path | Purpose |
 |---|---|
-| `reproducibility_package/` | Пакет для статьи: данные, анализ, исторические исходники и таблица неполных прогонов на английском. |
-| `src/` | Overlay поверх ns-3 / VaN3Twin: C++ модули симулятора. Изменять осторожно. |
-| `docs/` | Документация ns-3 upstream (rst). |
-| `experiments/` | Все сценарии и эксперименты. См. `experiments/README.md`. |
-| `runs/` | Evidence-прогоны (по датам). См. `runs/README.md`. |
-| `reports/` | Учебные/рабочие отчёты (cycle7, scenario manager). |
-| `conference/` | Финальные docx статей. |
-| `tools/` | Генераторы графиков, analyzers, ВКР-сборка. См. `tools/README.md`. |
-| `tests/` | Базовые тесты. |
-| `scripts/` | Operational helpers (sync overlay, docker run и т.п.). |
-| `emulation-support/` | CARLA / OpenCDA вспомогательные файлы. |
-| `docker/` | Dockerfile-ы. |
-| `tmp/` | Временные данные (gitignored). |
-| `archive/` | **Не читать ИИ.** Замороженные тексты ВКР, дубликаты, audit-история. |
-| `.venv/`, `.venv_sionna/`, `.venv_docs/` | Python virtualenvs (gitignored). |
-| `.bootstrap-ns3/` | Sandboxed ns-3 build (gitignored). |
-| `.optix-wsl/` | NVIDIA OptiX runtime (gitignored). |
+| [`README.md`](README.md) | Framework overview, architecture, quick start, and citation guidance |
+| [`reproducibility_package/`](reproducibility_package/README.md) | Retained manuscript data, source snapshots, analysis, and checksum validation |
+| [`CITATION.cff`](CITATION.cff) | Machine-readable citation metadata for this research overlay |
+| [`DEVELOPMENT.md`](DEVELOPMENT.md) | Analysis environment, simulator bootstrap, and test guidance |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Issue reporting, contributions, and preservation of experimental evidence |
 
-## Корневые файлы
+## Source and experiment directories
 
-| Файл | Назначение |
+| Path | Purpose |
 |---|---|
-| `README.md` | Описание проекта (от upstream). |
-| `AGENTS.md` | Правила для всех ИИ-агентов. |
-| `CLAUDE.md` | Указатель на AGENTS.md. |
-| `REPO_LAYOUT.md` | Этот файл. |
-| `Makefile`, `LICENSE`, `AUTHORS`, `CHANGES.md`, `RELEASE_NOTES.md` | Standard project files (от upstream). |
-| `DEVELOPMENT.md` | Разработческие заметки. |
-| `adapt_files.py`, `install_carla_opencda.sh`, `enable_v2x_emulator.sh`, `sandbox_builder.sh`, `switch_*.sh` | Operational scripts (от upstream + локальные). |
-| `docker-compose.gpu.yml`, `*.cflags`, `*.cxxflags` | Build configs. |
+| [`src/`](src/) | ns-3/ms-van3t/VaN3Twin overlay, communication applications, and integration modules |
+| [`experiments/`](experiments/README.md) | Scenario launchers, configurations, scenes, and protocols |
+| [`runs/`](runs/README.md) | Additional retained development and experiment records |
+| [`tools/`](tools/README.md) | Analysis, plotting, aggregation, scenario management, and historical authoring utilities |
+| [`tests/`](tests/) | Research-analysis tests and simulator fixtures |
+| [`scripts/`](scripts/) | Build, environment, and publication-packaging utilities |
+| [`docker/`](docker/) | Container definitions |
+| [`docs/`](docs/) | Inherited framework documentation and supplementary technical notes |
+| [`emulation-support/`](emulation-support/) | Upstream emulation and CARLA/OpenCDA integration support |
+| [`img/`](img/) | Framework graphics and retained figures |
+| [`.github/`](.github/) | Manuscript-analysis CI and issue/pull-request templates |
 
-## Куда что класть
+## Other root files
 
-| Что | Куда |
-|---|---|
-| Новый сценарий | `experiments/<name>/{scripts,docs,tools,results}/` |
-| Новый прогон evidence | `runs/<YYYY-MM-DD>/<run_dir>/` |
-| Новый аналитический скрипт | `tools/{plots,analysis,vkr}/` |
-| Учебный/рабочий отчёт | `reports/<name>/` |
-| Финальный docx статьи | `conference/` |
-| Старая версия / транзишнл / черновик | `archive/<YYYY-MM-DD>/superseded/...` |
+`LICENSE`, `license_gplv2.txt`, and `AUTHORS` retain upstream licensing and attribution. `CHANGES.md` and `RELEASE_NOTES.md` contain inherited framework history. `Makefile`, `sandbox_builder.sh`, `adapt_files.py`, and the integration shell scripts support simulator setup. The legacy bootstrap modifies its working directory; use the disposable workflow in [DEVELOPMENT.md](DEVELOPMENT.md).
+
+## Where to add new work
+
+Place new scenarios under `experiments/<name>/`, analysis under `tools/analysis/`, and plots under `tools/plots/`. Keep new campaign records in a separate, identified output location with commands, seeds, source versions, and environment provenance. Do not overwrite the retained manuscript sample or mix prospective cohorts into its analysis.
+
+Virtual environments, build trees, generated analysis output, editor metadata, and assistant-specific files are local working materials and are excluded from new commits. Existing tracked evidence and required upstream assets remain part of the repository.
