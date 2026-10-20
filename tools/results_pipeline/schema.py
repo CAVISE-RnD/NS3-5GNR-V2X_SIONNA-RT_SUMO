@@ -18,8 +18,6 @@ class NormalizedEvent:
     sinr_db: Optional[float] = None
     bler: Optional[float] = None
     distance_m: Optional[float] = None
-    speed_mps: Optional[float] = None
-    acceleration_mps2: Optional[float] = None
     prr_value: Optional[float] = None
     pdr_value: Optional[float] = None
     success: Optional[bool] = None
@@ -32,25 +30,6 @@ class NormalizedEvent:
 
 
 NORMALIZED_EVENT_FIELDS = list(NormalizedEvent.__dataclass_fields__.keys())
-
-NORMALIZED_METRIC_FIELDS = [
-    "run_id",
-    "scenario",
-    "source_stack",
-    "sample_kind",
-    "metric_name",
-    "metric_scope",
-    "entity_id",
-    "src_id",
-    "dst_id",
-    "ts_us",
-    "value",
-    "unit",
-    "module_path",
-    "stat_name",
-    "input_file",
-    "raw_row_num",
-]
 
 AGGREGATE_FIELDS = [
     "run_id",

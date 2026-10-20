@@ -1,6 +1,27 @@
-# 1548-CAVISE2026\_5GNR
+# Sionna_SUMO_simu
 
-### Выпускная квалификационная работа · НИТУ МИСИС · 2026
+![Portfolio](https://img.shields.io/badge/portfolio-thesis_research-2f6f6d?style=flat-square)
+![ns-3](https://img.shields.io/badge/simulator-ns--3-44546a?style=flat-square)
+![5G NR-V2X](https://img.shields.io/badge/network-5G_NR--V2X-3b6ea8?style=flat-square)
+![SUMO](https://img.shields.io/badge/mobility-SUMO-7a5c2e?style=flat-square)
+![Sionna](https://img.shields.io/badge/ray_tracing-Sionna_RT-2f6f6d?style=flat-square)
+
+## Manuscript reproducibility
+
+The [manuscript reproducibility package](reproducibility_package/README.md) contains the retained data, historical source snapshots, and analysis script for 140 emergency-vehicle alert runs and 27 complete-case intersection runs.
+
+To reproduce the analysis with Python 3.11 or later:
+
+```bash
+git clone https://github.com/CAVISE-RnD/Sionna_SUMO_simu.git
+cd Sionna_SUMO_simu/reproducibility_package
+python -m pip install numpy==2.3.5
+python analyze.py --output results.json
+```
+
+The analysis requires no simulator or GPU. See the package README for the English incomplete-run table, validation checks, and historical source limitations. For the article, cite a full commit SHA using `https://github.com/CAVISE-RnD/Sionna_SUMO_simu/tree/<commit-sha>`; the corresponding package is under `reproducibility_package/`.
+
+## Research project background
 
 > **«Влияние потерь сообщений 5G NR-V2X Mode 2 на безопасность подключённых автономных транспортных средств»**
 >
@@ -62,6 +83,7 @@
 
 ```
 NEWWAY/
+├── reproducibility_package/ # Manuscript data, analysis, and source snapshots
 ├── experiments/          # Все сценарии и эксперименты
 │   ├── truck_lane_change/        # ВКР: смена полосы — PRR → манёвр
 │   ├── intersection_crash/       # ВКР: конфликт на перекрёстке
@@ -105,7 +127,7 @@ sudo add-apt-repository ppa:sumo/stable
 sudo apt update && sudo apt install sumo sumo-tools sumo-doc
 
 # Клонировать и собрать ns-3-dev с overlay
-git clone https://github.com/AFETZ/1548-CAVISE2026_5GNR.git
+git clone https://github.com/CAVISE-RnD/Sionna_SUMO_simu.git NEWWAY
 cd NEWWAY
 ./sandbox_builder.sh install-dependencies   # первый раз
 # или ./sandbox_builder.sh                  # если ns-3 уже установлен
